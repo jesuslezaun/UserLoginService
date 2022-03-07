@@ -6,7 +6,14 @@ use UserLoginService\Domain\User;
 
 class UserLoginService
 {
+
+    private  SessionManager $sessionManager;
     private array $loggedUsers = [];
+
+    public function __construct(SessionManager $sessionManager)
+    {
+        $this->sessionManager = $sessionManager;
+    }
 
     public function manualLogin(User $user): void
     {
@@ -20,7 +27,7 @@ class UserLoginService
 
     public function countExternalSessions(): int
     {
-        return SessionManager::class->getSessions();
+        return $this->sessionManager->getSessions();
     }
 
 }
