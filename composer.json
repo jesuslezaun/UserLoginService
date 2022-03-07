@@ -1,6 +1,7 @@
 {
     "name": "deg540/php-testing-boilerplate",
     "description": "Php testing boilerplate",
+    "license":"proprietary",
     "type": "project",
     "require": {
         "php": "^8.0"
