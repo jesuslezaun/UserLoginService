@@ -7,6 +7,10 @@ use UserLoginService\Domain\User;
 class UserLoginService
 {
 
+    const LOGIN_CORRECTO = "Login correcto";
+    const LOGIN_INCORRECTO = "Login incorrecto";
+    const OK = "Ok";
+    const USUARIO_NO_LOGEADO = "Usuario no logeado";
     private  SessionManager $sessionManager;
     private array $loggedUsers = [];
 
@@ -36,9 +40,20 @@ class UserLoginService
         {
             $user = new User($userName);
             $this->loggedUsers[] = $user;
-            return "Login correcto";
+            return self::LOGIN_CORRECTO;
         }
 
-        return "Login incorrecto";
+        return self::LOGIN_INCORRECTO;
+    }
+
+    public function logout(User $user): string
+    {
+        if(!in_array($user, $this->loggedUsers))
+        {
+            return self::USUARIO_NO_LOGEADO;
+        }
+
+        $this->sessionManager->logout($user->getUserName());
+        return self::OK;
     }
 }

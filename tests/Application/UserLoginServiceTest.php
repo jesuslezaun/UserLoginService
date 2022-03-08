@@ -9,6 +9,7 @@ use UserLoginService\Application\UserLoginService;
 use UserLoginService\Domain\User;
 use UserLoginService\Tests\Doubles\DummySessionManager;
 use UserLoginService\Tests\Doubles\FakeSessionManager;
+use UserLoginService\Tests\Doubles\SpySessionManager;
 use UserLoginService\Tests\Doubles\StubSessionManager;
 
 final class UserLoginServiceTest extends TestCase
@@ -65,7 +66,7 @@ final class UserLoginServiceTest extends TestCase
 
         $loginResponse = $userLoginService->login($userName, $password);
 
-        $this->assertEquals("Login correcto", $loginResponse);
+        $this->assertEquals(UserLoginService::LOGIN_CORRECTO, $loginResponse);
     }
 
     /**
@@ -74,12 +75,42 @@ final class UserLoginServiceTest extends TestCase
     public function userIsNotLoggedInExternalService()
     {
         $userName = "user_name";
-        $password = "wrongpassword";
+        $password = "wrong_password";
         $sessionManager = new FakeSessionManager();
         $userLoginService = new UserLoginService($sessionManager);
 
         $loginResponse = $userLoginService->login($userName, $password);
 
-        $this->assertEquals("Login incorrecto", $loginResponse);
+        $this->assertEquals(UserLoginService::LOGIN_INCORRECTO, $loginResponse);
+    }
+
+    /**
+     * @test
+     */
+    public function userNotLoggedOutUserNotBeingLoggedIn()
+    {
+        $user = new User("user_name");
+        $sessionManager = new DummySessionManager();
+        $userLoginService = new UserLoginService($sessionManager);
+
+        $logoutResponse = $userLoginService->logout($user);
+
+        $this->assertEquals(UserLoginService::USUARIO_NO_LOGEADO, $logoutResponse);
+    }
+
+    /**
+     * @test
+     */
+    public function userLoggedOut()
+    {
+        $user = new User("user_name");
+        $sessionManager = new SpySessionManager();
+        $userLoginService = new UserLoginService($sessionManager);
+
+        $userLoginService->manualLogin($user);
+        $logoutResponse = $userLoginService->logout($user);
+
+        $sessionManager->verifyLogoutCalls(1);
+        $this->assertEquals(UserLoginService::OK, $logoutResponse);
     }
 }
